@@ -25,6 +25,7 @@ tokens :-
 <0> "fix"     { tok Fix             }
 <0> "EVAL"    { tok Eval            }
 <0> "CHECK"   { tok Check           }
+<0> "CONSTR"  { tok Constr          }
 <0> "EXIT"    { tok Exit            }
 <0> "TYPEDEF" { tok Typedef         }
 <0> "DEFINE"  { tok Define          }
@@ -58,7 +59,6 @@ tokens :-
 <0> "case"    { tok Case            }
 <0> "of"      { tok Of              }
 <0> "|"       { tok Pipe            }
-<0> "as"      { tok As              }
 <0> @id       { tok (Var "")        }
 <0> @path     { tok (Path "")       }
 <0> @digits   { tok (NumVal 0)      }
@@ -68,6 +68,7 @@ tokens :-
 data Token =
     Arrow
   | TypeArrow
+  | Constr
   | BaseType
   | IntType
   | BoolType

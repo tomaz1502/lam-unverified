@@ -43,6 +43,7 @@ import Lam.Parser.Lexer qualified as L
   "::"      { L.TypeColon  }
   ";"       { L.Semicolon  }
   ":="      { L.ColonEq    }
+  "CONSTR"  { L.Constr     }
   "DEFINE"  { L.Define     }
   "EVAL"    { L.Eval       }
   "CHECK"   { L.Check      }
@@ -80,7 +81,6 @@ import Lam.Parser.Lexer qualified as L
   "case"    { L.Case       }
   "of"      { L.Of         }
   "|"       { L.Pipe       }
-  "as"      { L.As         }
   "Sum"     { L.SumT       }
   "Prod"    { L.ProdT      }
 %%
@@ -113,6 +113,10 @@ Command :: { Command }
   | LoadCommand    { LoadC $1 }
   | ReadCommand    { ReadC $1 }
   | ExitCommand    { ExitC }
+  | ConstrCommand  { ConstrC $1 }
+
+ConstrCommand :: { RawExpr }
+  : "CONSTR" RawExpr ";" { $2 }
 
 TypedefCommand :: { (Id, RawTypeL) }
   : "TYPEDEF" var ":=" RawTypeL ";"
@@ -179,8 +183,8 @@ RawExpr :: { RawExpr }
   | "proj1" RawExpr { RawUnOp Proj1 $2 }
   | "proj2" RawExpr { RawUnOp Proj2 $2 }
   | "<" RawExpr "," RawExpr ">" { RawBinOp MkPair $2 $4 }
-  | "inl" RawExpr "as" RawTypeL { RawInl $2 $4 }
-  | "inr" RawExpr "as" RawTypeL { RawInr $2 $4 }
+  | "inl" RawExpr { RawInl $2 }
+  | "inr" RawExpr { RawInr $2 }
   | "case" RawExpr "of" "inl" var "=>" RawExpr "|" "inr" var "=>" RawExpr { RawCase $2 $5 $7 $10 $12 }
   | "fix" RawExpr { RawFix $2 }
   | ParExpr { $1 }

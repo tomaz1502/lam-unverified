@@ -30,6 +30,7 @@ prettyPrintType (Sum t1 t2) =
   unwords [ "( Sum", prettyPrintType t1, prettyPrintType t2, ")" ]
 prettyPrintType (Arrow t1 t2) =
   unwords [ "(", prettyPrintType t1, "=>", prettyPrintType t2, ")" ]
+prettyPrintType (TypeVar i) = "m" ++ show i
 
 -- print respecting Lam's syntax
 prettyPrint :: Bool -> Expr -> String
@@ -54,12 +55,10 @@ prettyPrint = go []
           ["(", go ctx isUntyped e1, ppBinOp op, go ctx isUntyped e2, ")"]
         go ctx isUntyped (UnaryOp op e)   = unwords
           ["(", ppUnOp op, go ctx isUntyped e, ")"]
-        go ctx isUntyped (Inl e t)   =
-          if isUntyped then unwords ["inl", go ctx isUntyped e] else
-            unwords ["inl", go ctx isUntyped e, "as", prettyPrintType t ]
-        go ctx isUntyped (Inr e t)   =
-          if isUntyped then unwords ["inr", go ctx isUntyped e] else
-            unwords ["inr", go ctx isUntyped e, "as", prettyPrintType t ]
+        go ctx isUntyped (Inl e)   =
+          unwords ["inl", go ctx isUntyped e]
+        go ctx isUntyped (Inr e)   =
+          unwords ["inr", go ctx isUntyped e]
         go ctx isUntyped (Case e1 id2 e2 id3 e3) =
             unwords [ "( case"
                     , go ctx isUntyped e1

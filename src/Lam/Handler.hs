@@ -14,12 +14,13 @@ import Data.Map qualified as M
 import Lam.Context
 import Lam.Data
 import Lam.Evaluator
+import Lam.Infer
 import Lam.Parser
 import Lam.Result
-import Lam.TypeChecker
-import Lam.Utils
 import Lam.Terminal.Raw
 import Lam.Terminal.ReadRepl
+import Lam.TypeChecker
+import Lam.Utils
 
 -- TODO: report cyclic dependencies
 loadFile :: String -> Result ()
@@ -90,6 +91,11 @@ handleCommand c =
       expr <- liftEither (parseRawExpr isUntyped exprS)
       handleDefine varName expr
     ExitC -> return ()
+    ConstrC rExpr -> do
+      gctx <- get
+      e <- liftEither (eraseNames gctx rExpr)
+      let (_, _, constr) = genTypeConstraints [] 0 e
+      liftIO (print constr)
 
 repl :: CmdHistory -> Result ()
 repl h = do

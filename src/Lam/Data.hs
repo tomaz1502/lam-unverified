@@ -3,12 +3,14 @@ module Lam.Data where
 import Lam.Nat (Nat)
 
 type Id = String
+type TypeVarId = Int
 
 data RawTypeL = RawBoolT
               | RawIntT
               | RawProd RawTypeL RawTypeL
               | RawSum RawTypeL RawTypeL
               | RawArrow RawTypeL RawTypeL
+              | RawTypeVar TypeVarId
               | FreeType Id
                   deriving (Eq, Show)
 
@@ -17,6 +19,7 @@ data TypeL = BoolT
            | Arrow TypeL TypeL
            | Prod TypeL TypeL
            | Sum TypeL TypeL
+           | TypeVar TypeVarId
                deriving Show
 
 instance Eq TypeL where
@@ -25,6 +28,7 @@ instance Eq TypeL where
     Arrow t11 t12 == Arrow t21 t22 = t11 == t21 && t12 == t22
     Prod t11 t12 == Prod t21 t22 = t11 == t21 && t12 == t22
     Sum t11 t12 == Sum t21 t22 = t11 == t21 && t12 == t22
+    TypeVar i == TypeVar j = i == j
     _ == _ = False
 
 data ConstT = NumC Int
@@ -50,8 +54,8 @@ data RawExpr = RawVar Id
              | RawApp RawExpr RawExpr
              | RawFix RawExpr
              | RawIte RawExpr RawExpr RawExpr
-             | RawInl RawExpr RawTypeL
-             | RawInr RawExpr RawTypeL
+             | RawInl RawExpr
+             | RawInr RawExpr
              | RawCase RawExpr Id RawExpr Id RawExpr
              | RawConst ConstT
              | RawBinOp BinOpT RawExpr RawExpr
@@ -63,8 +67,8 @@ data Expr = Var Nat
           | App Expr Expr
           | Fix Expr
           | Ite Expr Expr Expr
-          | Inl Expr TypeL
-          | Inr Expr TypeL
+          | Inl Expr
+          | Inr Expr
           | Case Expr Id Expr Id Expr
           | Const ConstT
           | BinOp BinOpT Expr Expr
@@ -80,8 +84,8 @@ instance Eq Expr where
       = o1 == o2 && e11 == e21 && e12 == e22
     UnaryOp o1 e1 == UnaryOp o2 e2 = o1 == o2 && e1 == e2
     Ite b1 t1 e1 == Ite b2 t2 e2 = b1 == b2 && t1 == t2 && e1 == e2
-    Inl e1 t1 == Inl e2 t2 = e1 == e2 && t1 == t2
-    Inr e1 t1 == Inr e2 t2 = e1 == e2 && t1 == t2
+    Inl e1 == Inl e2 = e1 == e2
+    Inr e1 == Inr e2 = e1 == e2
     _ == _ = False
 
 data Command = TypedefC (Id, RawTypeL)
@@ -91,4 +95,5 @@ data Command = TypedefC (Id, RawTypeL)
              | LoadC Id
              | ReadC Id
              | ExitC
+             | ConstrC RawExpr
 

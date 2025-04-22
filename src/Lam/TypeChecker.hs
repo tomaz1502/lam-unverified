@@ -97,18 +97,18 @@ typeCheck' gam (BinOp MkPair e1 e2)
   = do t1 <- typeCheck' gam e1
        t2 <- typeCheck' gam e2
        Just (Prod t1 t2)
-typeCheck' gam (Inl e t)
-  = myCaseOf t
-      (\case
-           Sum tl tr -> do te <- typeCheck' gam e
-                           if tl == te then Just (Sum tl tr) else Nothing
-           _ -> Nothing)
-typeCheck' gam (Inr e t)
-  = myCaseOf t
-      (\case
-           Sum tl tr -> do te <- typeCheck' gam e
-                           if tr == te then Just (Sum tl tr) else Nothing
-           _ -> Nothing)
+typeCheck' gam (Inl e) = undefined
+  -- = myCaseOf t
+  --     (\case
+  --          Sum tl tr -> do te <- typeCheck' gam e
+  --                          if tl == te then Just (Sum tl tr) else Nothing
+  --          _ -> Nothing)
+typeCheck' gam (Inr e) = undefined
+  -- = myCaseOf t
+  --     (\case
+  --          Sum tl tr -> do te <- typeCheck' gam e
+  --                          if tr == te then Just (Sum tl tr) else Nothing
+  --          _ -> Nothing)
 typeCheck' gam (Case e1 _ e2 _ e3)
   = myCaseOf (typeCheck' gam e1)
       (\case

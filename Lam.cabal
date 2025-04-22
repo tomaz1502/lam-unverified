@@ -28,6 +28,7 @@ library
     Lam.Nat
     Lam.Evaluator
     Lam.Handler
+    Lam.Infer
     Lam.Parser
     Lam.Parser.Base
     Lam.Parser.Lexer

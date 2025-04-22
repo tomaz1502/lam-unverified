@@ -1,7 +1,7 @@
 {-# LANGUAGE LambdaCase #-}
 module Lam.Evaluator where
 
-import Lam.Data (BinOpT(Add, And, LtInt, MkPair, Mul, Or, Sub), ConstT(BoolC, NumC), Expr(App, BinOp, Case, Const, Fix, Inl, Inr, Ite, Lam, UnaryOp, Var), Id, TypeL, UnaryOpT(Not, Proj1, Proj2))
+import Lam.Data (BinOpT(Add, And, LtInt, MkPair, Mul, Or, Sub), ConstT(BoolC, NumC), Expr(App, BinOp, Case, Const, Fix, Inl, Inr, Ite, Lam, UnaryOp, Var), Id, UnaryOpT(Not, Proj1, Proj2))
 import Lam.Nat (Nat(S, Z), dec, inc, ltNat)
 import Lam.UtilsAgda (myCaseOf)
 
@@ -29,8 +29,8 @@ shiftUp' c (BinOp o e1 e2)
   = BinOp o (shiftUp' c e1) (shiftUp' c e2)
 shiftUp' c (UnaryOp o e) = UnaryOp o (shiftUp' c e)
 shiftUp' _ (Const k) = Const k
-shiftUp' c (Inl e t) = Inl (shiftUp' c e) t
-shiftUp' c (Inr e t) = Inr (shiftUp' c e) t
+shiftUp' c (Inl e) = Inl (shiftUp' c e)
+shiftUp' c (Inr e) = Inr (shiftUp' c e)
 shiftUp' c (Fix e) = Fix (shiftUp' c e)
 
 shiftUp :: Expr -> Expr
@@ -60,8 +60,8 @@ shiftDown' c (BinOp o e1 e2)
   = BinOp o (shiftDown' c e1) (shiftDown' c e2)
 shiftDown' c (UnaryOp o e) = UnaryOp o (shiftDown' c e)
 shiftDown' _ (Const k) = Const k
-shiftDown' c (Inl e t) = Inl (shiftDown' c e) t
-shiftDown' c (Inr e t) = Inr (shiftDown' c e) t
+shiftDown' c (Inl e) = Inl (shiftDown' c e)
+shiftDown' c (Inr e) = Inr (shiftDown' c e)
 shiftDown' c (Fix e) = Fix (shiftDown' c e)
 
 shiftDown :: Expr -> Expr
@@ -85,8 +85,8 @@ substitute' i s (BinOp o e1 e2)
   = BinOp o (substitute' i s e1) (substitute' i s e2)
 substitute' i s (UnaryOp o e) = UnaryOp o (substitute' i s e)
 substitute' _ _ (Const k) = Const k
-substitute' i s (Inl e t) = Inl (substitute' i s e) t
-substitute' i s (Inr e t) = Inr (substitute' i s e) t
+substitute' i s (Inl e) = Inl (substitute' i s e)
+substitute' i s (Inr e) = Inr (substitute' i s e)
 substitute' i s (Fix e) = Fix (substitute' i s e)
 substitute' i s (Case e1 id2 e2 id3 e3)
   = Case (substitute' i s e1) id2 (substitute' (S i) (shiftUp s) e2)
@@ -100,17 +100,17 @@ smallStepCase ::
               Expr -> Id -> Expr -> Id -> Expr -> Maybe Expr -> Maybe Expr
 smallStepCase _ id2 e2 id3 e3 (Just e1')
   = Just (Case e1' id2 e2 id3 e3)
-smallStepCase (Inl x _) _ e2 _ _ Nothing = Just (substitute x e2)
-smallStepCase (Inr x _) _ _ _ e3 Nothing = Just (substitute x e3)
+smallStepCase (Inl x) _ e2 _ _ Nothing = Just (substitute x e2)
+smallStepCase (Inr x) _ _ _ e3 Nothing = Just (substitute x e3)
 smallStepCase _ _ _ _ _ Nothing = Nothing
 
-smallStepInl :: Expr -> TypeL -> Maybe Expr -> Maybe Expr
-smallStepInl _ _ Nothing = Nothing
-smallStepInl _ t (Just e') = Just (Inl e' t)
+smallStepInl :: Expr -> Maybe Expr -> Maybe Expr
+smallStepInl _ Nothing = Nothing
+smallStepInl _ (Just e') = Just (Inl e')
 
-smallStepInr :: Expr -> TypeL -> Maybe Expr -> Maybe Expr
-smallStepInr _ _ Nothing = Nothing
-smallStepInr _ t (Just e') = Just (Inr e' t)
+smallStepInr :: Expr -> Maybe Expr -> Maybe Expr
+smallStepInr _ Nothing = Nothing
+smallStepInr _ (Just e') = Just (Inr e')
 
 smallStepIte :: Expr -> Expr -> Expr -> Maybe Expr -> Maybe Expr
 smallStepIte _ t e (Just b') = Just (Ite b' t e)
@@ -169,8 +169,8 @@ smallStep (BinOp o e1 e2)
   = smallStepBinOp o e1 e2 (smallStep e1) (smallStep e2)
 smallStep (UnaryOp o e) = smallStepUnOp o e (smallStep e)
 smallStep (Ite b t e) = smallStepIte b t e (smallStep b)
-smallStep (Inl e t) = smallStepInl e t (smallStep e)
-smallStep (Inr e t) = smallStepInr e t (smallStep e)
+smallStep (Inl e) = smallStepInl e (smallStep e)
+smallStep (Inr e) = smallStepInr e (smallStep e)
 smallStep (Case e1 id2 e2 id3 e3)
   = smallStepCase e1 id2 e2 id3 e3 (smallStep e1)
 smallStep (Fix e) = smallStepFix e (smallStep e)
