@@ -2,9 +2,3 @@
 stack.yaml.lock
 
 *.agdai
-
-src/Lam/Data.hs
-src/Lam/Evaluator.hs
-src/Lam/TypeChecker.hs
-src/Lam/UtilsAgda.hs
-src/Lam/Nat.hs
