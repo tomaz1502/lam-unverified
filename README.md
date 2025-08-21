@@ -1,5 +1,6 @@
+
 # Lam
-A formally verified interpreter for Lambda Calculus.
+An interpreter for Lambda Calculus. Note: we keep two separate repositories because the idea is for the feature set to be significantly different, so it wouldn't be feasible to share parts of the code.
 
 Dependencies: agda2hs version 1.2.
 
